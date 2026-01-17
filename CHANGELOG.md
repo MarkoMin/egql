@@ -35,6 +35,7 @@ Nothing here yet
 * Removed *jsx* from test dependencies because it was unused.
 * Resolved ambiguous call to `graphql_execute:alias/1` which was causing compiler warning.
 * Replaced deprecated `dbg:stop_clear/0` with `dbg:stop/0`.
+* Typo in map key: `schmema` -> `schema`
 
 ## [0.16.0] 2021-01-21 Hex.pm release
 
