@@ -13,6 +13,19 @@ the compatibility issues you are likely to encounter.
 
 Nothing here yet
 
+## [0.17.0]
+
+**Fork was created!**
+
+### Compatibility
+
+* `geas_rebar3` and `rebar3_hex` are now labeled as `project_plugins`, meaning they'll
+  not be downloaded when using `egql` as a dependency.
+
+### Fixed
+
+* Use `geas_rebar3` from Hex, not from master branch on GitHub
+
 ## [0.16.0] 2021-01-21 Hex.pm release
 
 ### Compatibility
