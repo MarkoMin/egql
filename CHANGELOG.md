@@ -28,11 +28,12 @@ Nothing here yet
 
 ### Fixed
 
-* Use `geas_rebar3` from Hex, not from master branch on GitHub
+* Use `geas_rebar3` from Hex, not from master branch on GitHub.
 * Export `graphql:name/0` type - that one not being exported casused dialyzer errors
   in this project and in project depending on this project.
-* Internal dialyzer errors resolved
-* Removed *jsx* from test dependencies because it was unused
+* Internal dialyzer errors resolved.
+* Removed *jsx* from test dependencies because it was unused.
+* Resolve ambiguous call to `graphql_execute:alias/1` which was causing compiler warning.
 
 ## [0.16.0] 2021-01-21 Hex.pm release
 
