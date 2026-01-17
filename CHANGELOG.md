@@ -32,10 +32,12 @@ Nothing here yet
 * Export `graphql:name/0` type - that one not being exported casused dialyzer errors
   in this project and in project depending on this project.
 * Internal dialyzer errors resolved.
-* Removed *jsx* from test dependencies because it was unused.
+* Removed *jsx* from test dependencies because it was unused. Use `json` module if needed.
 * Resolved ambiguous call to `graphql_execute:alias/1` which was causing compiler warning.
 * Replaced deprecated `dbg:stop_clear/0` with `dbg:stop/0`.
 * Typo in map key: `schmema` -> `schema`
+* Remove unused file `cover.spec` - `details` is the default level anyways, no need to
+  state that explicitly.
 
 ## [0.16.0] 2021-01-21 Hex.pm release
 
