@@ -22,9 +22,16 @@ Nothing here yet
 * `geas_rebar3` and `rebar3_hex` are now labeled as `project_plugins`, meaning they'll
   not be downloaded when using `egql` as a dependency.
 
+### Added
+
+* Previously used, but undefined type `graphql:ast/0` is now defined and exported.
+
 ### Fixed
 
 * Use `geas_rebar3` from Hex, not from master branch on GitHub
+* Export `graphql:name/0` type - that one not being exported casused dialyzer errors
+  in this project and in project depending on this project.
+* Internal dialyzer errors resolved
 
 ## [0.16.0] 2021-01-21 Hex.pm release
 

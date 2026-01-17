@@ -57,10 +57,12 @@
 -type name() :: {name, pos_integer(), binary()} | binary().
 -type document() :: #document{}.
 -type directive() :: #directive{}.
+-type ast() :: #document{}.
 -export_type([directive/0,
-
               token/0,
-              schema_field/0]).
+              schema_field/0,
+              name/0,
+              ast/0]).
 
 -define(DEFAULT_TIMEOUT, 3000).
 

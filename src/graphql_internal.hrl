@@ -2,11 +2,10 @@
 
 %% All identifiers in the AST are given like this
 
--type graphql_base_type() :: graphql:name() | binary().
 -type graphql_type() ::
           {non_null, graphql_type()}
         | {list, graphql_type()}
-        | graphql_base_type().
+        | graphql:name().
 
 -type value() ::
 	  graphql:name()
@@ -40,7 +39,7 @@
 
 -record(frag,
         { id :: '...' | graphql:name(), %% One variant is for inline fragments
-          ty :: undefined | graphql_base_type(),
+          ty :: undefined | graphql:name() | tuple(), %% last type should be schema_object()
           directives = [] :: [graphql:directive()],
           selection_set = [] :: [#field{}],
           schema = undefined :: 'undefined' | any()
