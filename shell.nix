@@ -2,15 +2,9 @@
 
 with pkgs;
 
-let
-  inherit (lib) optional optionals;
-
-  erlang_wx = erlangR23.override {
-      wxSupport = true;
-  };
-in
-
 mkShell {
-  buildInputs = [ erlang_wx ]
-    ++ optional stdenv.isLinux inotify-tools;
+    buildInputs = [
+        erlang
+        (lib.optional stdenv.isLinux inotify-tools)
+    ];
 }
