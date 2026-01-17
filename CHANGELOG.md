@@ -25,6 +25,7 @@ Nothing here yet
 ### Added
 
 * Previously used, but undefined type `graphql:ast/0` is now defined and exported.
+* Basic CI workflow (build -> dialyze -> test)
 
 ### Fixed
 
@@ -38,6 +39,7 @@ Nothing here yet
 * Typo in map key: `schmema` -> `schema`
 * Remove unused file `cover.spec` - `details` is the default level anyways, no need to
   state that explicitly.
+* Removed `.travis.yml`, replaced by GitHub actions workflow.
 
 ## [0.16.0] 2021-01-21 Hex.pm release
 
