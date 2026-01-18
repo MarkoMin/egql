@@ -1,6 +1,15 @@
-[![Build Status](https://travis-ci.org/shopgun/graphql-erlang.svg?branch=develop)](https://travis-ci.org/shopgun/graphql-erlang)
-
 # A GraphQL Server library - in Erlang
+
+[![Erlang/OTP Versions](https://img.shields.io/badge/erlang%2Fotp-28-blue)](https://www.erlang.org)
+[![Build Status](https://github.com/MarkoMin/egql/actions/workflows/ci.yml/badge.svg)](https://github.com/dnsimple/erldns/actions/workflows/ci.yml)
+
+This is a fork of [graphql-erlang](https://github.com/jlouis/graphql-erlang).
+
+Version `0.16.1` is where `egql` was created.
+
+Version `0.17.0` was first available version of `eqgl`.
+
+Rest of this file is from the original `README.md`:
 
 This project contains the necessary support code to implement GraphQL
 servers in Erlang. Its major use is on top of some other existing
