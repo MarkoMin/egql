@@ -21,6 +21,7 @@ Nothing here yet
 
 * `geas_rebar3` and `rebar3_hex` are now labeled as `project_plugins`, meaning they'll
   not be downloaded when using `egql` as a dependency.
+* Hex package name changed to `egql`, application name stays the same for easier migration.
 
 ### Added
 
