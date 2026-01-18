@@ -15,7 +15,15 @@
 -type directive_location() :: 'QUERY' | 'MUTATION' | 'SUBSCRIPTION' | 'FIELD'
         | 'FRAGMENT_DEFINITION' | 'FRAGMENT_SPREAD' | 'INLINE_FRAGMENT' | 'SCHEMA'
         | 'SCALAR' | 'OBJECT' | 'FIELD_DEFINITION' | 'ARGUMENT_DEFINITION' | 'INTERFACE'
-        | 'UNION' | 'ENUM' | 'ENUM_VALUE' | 'INPUT_OBJECT' | 'INPUT_FIELD_DEFINITION'.
+        | 'UNION' | 'ENUM' | 'ENUM_VALUE' | 'INPUT_OBJECT' | 'INPUT_FIELD_DEFINITION'
+        | 'VARIABLE_DEFINITION'.
+
+-define (DIRECTIVE_LOCATIONS, [
+    'QUERY', 'MUTATION', 'SUBSCRIPTION', 'FIELD', 'FRAGMENT_DEFINITION',
+    'FRAGMENT_SPREAD', 'INLINE_FRAGMENT', 'SCHEMA', 'SCALAR', 'OBJECT',
+    'FIELD_DEFINITION', 'ARGUMENT_DEFINITION', 'INTERFACE', 'UNION',
+    'ENUM', 'ENUM_VALUE', 'INPUT_OBJECT', 'INPUT_FIELD_DEFINITION',
+    'VARIABLE_DEFINITION']).
 
 -type resolver() :: fun ((ctx, term(), binary(), resolver_args()) -> term()).
 
@@ -30,8 +38,7 @@
 -record(enum_value,
         { val :: binary(),
           description :: binary(),
-          directives = [] :: [graphql:directive()],
-          deprecation = undefined :: undefined | binary()
+          directives = [] :: [graphql:directive()]
         }).
 -type enum_value() :: #enum_value{}.
 
@@ -74,8 +81,6 @@
         { ty :: schema_type(),
           description :: binary() | undefined,
           resolve = undefined :: undefined | resolver(),
-          %% FIXME: deprecations are directives so they can be cast as one
-          deprecation = undefined :: undefined | binary(),
           directives = [] :: [graphql:directive()],
           args = #{} :: #{ binary() => schema_arg() }
         }).

@@ -54,7 +54,7 @@ type Item implements Node {
   description: String
   weight: String
   weightSum: String
-  foo: Boolean
+  foo: Boolean @deprecated
   contents: [Thing]
 }
 
@@ -79,3 +79,23 @@ directive @fieldDefDirective(myarg: String) on FIELD_DEFINITION
 
 directive @myArgDirective on ARGUMENT_DEFINITION
 
+directive @allLocations on
+    QUERY |
+    MUTATION |
+    SUBSCRIPTION |
+    FIELD |
+    FRAGMENT_DEFINITION |
+    FRAGMENT_SPREAD |
+    INLINE_FRAGMENT |
+    SCHEMA |
+    SCALAR |
+    OBJECT |
+    FIELD_DEFINITION |
+    ARGUMENT_DEFINITION |
+    INTERFACE |
+    UNION |
+    ENUM |
+    ENUM_VALUE |
+    INPUT_OBJECT |
+    INPUT_FIELD_DEFINITION |
+    VARIABLE_DEFINITION

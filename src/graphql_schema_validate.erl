@@ -5,12 +5,6 @@
 
 -export([x/0, root/1]).
 
--define (DIRECTIVE_LOCATIONS, [
-    'QUERY', 'MUTATION', 'SUBSCRIPTION', 'FIELD', 'FRAGMENT_DEFINITION',
-    'FRAGMENT_SPREAD', 'INLINE_FRAGMENT', 'SCHEMA', 'SCALAR', 'OBJECT',
-    'FIELD_DEFINITION', 'ARGUMENT_DEFINITION', 'INTERFACE', 'UNION',
-    'ENUM', 'ENUM_VALUE', 'INPUT_OBJECT', 'INPUT_FIELD_DEFINITION']).
-
 -spec root(#root_schema{}) -> #root_schema{}.
 root(#root_schema{ query = Q,
                    mutation = M,

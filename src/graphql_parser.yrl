@@ -493,6 +493,7 @@ g_directive_location({name, _, <<"ENUM">>}) -> 'ENUM';
 g_directive_location({name, _, <<"ENUM_VALUE">>}) -> 'ENUM_VALUE';
 g_directive_location({name, _, <<"INPUT_OBJECT">>}) -> 'INPUT_OBJECT';
 g_directive_location({name, _, <<"INPUT_FIELD_DEFINITION">>}) -> 'INPUT_FIELD_DEFINITION';
+g_directive_location({name, _, <<"VARIABLE_DEFINITION">>}) -> 'VARIABLE_DEFINITION';
 g_directive_location({name, Line, N}) -> return_error(Line, {invalid_directive_location, N}).
 
 

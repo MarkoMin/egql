@@ -25,11 +25,18 @@ Nothing here yet
 * Error reason in integer output when truncated float is not integer is changed from
   `not_integer` to `float_truncate_not_integer` - now it's the same for both input and
   output coercers.
+* `deprecated` field removed from `schema_field` and `enum_value` records - deprecation
+  is handled as directive. This will also result in slightly smaller schemas.
 
 ### Added
 
 * Previously used, but undefined type `graphql:ast/0` is now defined and exported.
 * Basic CI workflow (build -> dialyze -> test)
+* All directives are included in schema introspection, not just `skip` and `include`
+* All directive locations are now supported in introspection (`@allLocations` directive
+  added to test to ensure this)
+* Parser support for `VARIABLE_DEFINITION` directive location added in
+  [GraphQL Oct2021](https://spec.graphql.org/October2021/#ExecutableDirectiveLocation)
 
 ### Fixed
 

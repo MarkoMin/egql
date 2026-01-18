@@ -1,5 +1,6 @@
 -module(graphql_introspection).
 
+-include_lib("stdlib/include/qlc.hrl").
 -include("graphql_schema.hrl").
 -include_lib("graphql/include/graphql.hrl").
 
@@ -44,9 +45,7 @@ augment_root(QName) ->
     ok.
 
 schema_resolver(_Ctx, none, _, #{}) ->
-    {ok, #{ <<"directives">> =>
-                [directive(include),
-                 directive(skip)]}}.
+    {ok, #{<<"directives">> => render_directives()}}.
 
 type_resolver(_Ctx, none, _, #{ <<"name">> := N }) ->
     case graphql_schema:lookup(N) of
@@ -135,14 +134,17 @@ type_possibilities(#union_type { types = Types }) ->
 type_possibilities(_) -> null.
 
 type_enum_values(#enum_type { values = VMap }) ->
-    [begin
-         {ok, R} = render_enum_value(V),
-         R
-     end || V <- maps:to_list(VMap)];
+    Values0 = [render_enum_value(V) || V <- maps:to_list(VMap)],
+    unwrap_list_render(Values0);
 type_enum_values(_) -> null.
 
-type_unwrap({list, Ty}) -> {ok, U} = render_type(Ty), U;
-type_unwrap({non_null, Ty}) -> {ok, U} = render_type(Ty), U;
+unwrap_list_render(Values) ->
+    [unwrap_render(Val) || Val <- Values].
+
+unwrap_render({ok, Val}) -> Val.
+
+type_unwrap({list, Ty}) -> unwrap_render(render_type(Ty));
+type_unwrap({non_null, Ty}) -> unwrap_render(render_type(Ty));
 type_unwrap(_) -> null.
 
 type_input_fields(#input_object_type{ fields = FS }) ->
@@ -163,9 +165,9 @@ render_field({Name, #schema_field {
                        description = Desc,
                        args = Args,
                        ty = Ty,
-                       deprecation = Deprecation }
+                       directives = Directives}
              }) ->
-    {IsDeprecated, DeprecationReason} = render_deprecation(Deprecation),
+    {IsDeprecated, DeprecationReason} = render_deprecation(Directives),
     {ok, #{
         <<"name">> => Name,
         <<"description">> => Desc,
@@ -182,12 +184,11 @@ render_input_value({K, #schema_arg { ty = Ty,
         <<"name">> => K,
         <<"description">> => Desc,
         <<"type">> => ?LAZY(render_type(Ty)),
-        <<"defaultValue">> =>
-              case Default of
-                  undefined -> null;
-                  _ -> Default
-              end
+        <<"defaultValue">> => render_optional(Default)
     }}.
+
+render_optional(undefined) -> null;
+render_optional(Value) -> Value.
 
 interface_implementors(ID) ->
     Pass = fun
@@ -199,9 +200,9 @@ interface_implementors(ID) ->
 render_enum_value({_Value, #enum_value{
                               val = Key,
                               description = Desc,
-                              deprecation = Deprecation }
+                              directives = Directives}
                   }) ->
-    {IsDeprecated, DeprecationReason} = render_deprecation(Deprecation),
+    {IsDeprecated, DeprecationReason} = render_deprecation(Directives),
     {ok, #{
        <<"name">> => Key,
        <<"description">> => Desc,
@@ -209,10 +210,18 @@ render_enum_value({_Value, #enum_value{
        <<"deprecationReason">> => DeprecationReason
      }}.
 
-render_deprecation(undefined) ->
+render_deprecation([]) ->
     {false, null};
-render_deprecation(Reason) when is_binary(Reason) ->
-    {true, Reason}.
+render_deprecation([#directive{id = <<"deprecated">>, args = Args, schema = Type} | _]) ->
+    Reason = case Args of
+                 #{<<"reason">>:=R} -> R;
+                 _ ->
+                     ReasonArg = maps:get(<<"reason">>, Type#directive_type.args),
+                     ReasonArg#schema_arg.default
+             end,
+    {true, Reason};
+render_deprecation([_ | Rest]) ->
+    render_deprecation(Rest).
 
 %% -- SCHEMA DEFINITION -------------------------------------------------------
 -spec inject() -> ok.
@@ -396,18 +405,13 @@ inject() ->
                        type => {non_null, ['__InputValue!']},
                        description => "The possible arguments for the given directive" }
                     }}},
+    Locations = #{Loc => #{value=>Idx, description => location_desc(Loc)}
+                  || {Idx, Loc} <- lists:enumerate(?DIRECTIVE_LOCATIONS)},
     DirectiveLocation = {enum, #{
                            id => '__DirectiveLocation',
                            description => "Where a given directive can be used",
                            resolve_module => graphql_enum_coerce,
-                           values => #{
-                             'QUERY' => #{ value => 1, description => "Queries" },
-                             'MUTATION' => #{ value => 2, description => "Mutations" },
-                             'FIELD' => #{ value => 3, description => "Fields" },
-                             'FRAGMENT_DEFINITION' => #{ value => 4, description => "Fragment definitions" },
-                             'FRAGMENT_SPREAD' => #{ value => 5, description => "Fragment spread" },
-                             'INLINE_FRAGMENT' => #{ value => 6, description => "Inline fragments" }
-                            }}},
+                           values => Locations}},
     ok = graphql:insert_schema_definition(DirectiveLocation),
     ok = graphql:insert_schema_definition(Directive),
     ok = graphql:insert_schema_definition(TypeKind),
@@ -418,31 +422,46 @@ inject() ->
     ok = graphql:insert_schema_definition(Schema),
     ok.
 
-%% @todo: Look up the directive in the schema and then use that lookup as a way to render the
-%% following part. Most notably, locations can be mapped from the directive type.
-directive(Kind) ->
-    {Name, Desc} =
-        case Kind of
-            include ->
-                {<<"include">>,
-                 <<"include a selection on a conditional variable">> };
-            skip ->
-                {<<"skip">>,
-                 <<"exclude a selection on a conditional variable">>}
-        end,
-    {ok, Bool} = render_type(<<"Bool">>),
+location_desc('QUERY') -> "Queries";
+location_desc('MUTATION') -> "Mutations";
+location_desc('FIELD') -> "Fields";
+location_desc('FRAGMENT_DEFINITION') -> "Fragment definitions";
+location_desc('FRAGMENT_SPREAD') -> "Fragment spread";
+location_desc('INLINE_FRAGMENT') -> "Inline fragments";
+location_desc('FIELD_DEFINITION') -> "Field definitions";
+location_desc('ENUM_VALUE') -> "Enum values";
+location_desc('SUBSCRIPTION') -> "Subscriptions";
+location_desc('SCHEMA') -> "Schema";
+location_desc('SCALAR') -> "Scalars";
+location_desc('OBJECT') -> "Objects";
+location_desc('ARGUMENT_DEFINITION') -> "Argument definitions";
+location_desc('INTERFACE') -> "Argument definitions";
+location_desc('UNION') -> "Unions";
+location_desc('ENUM') -> "Enums";
+location_desc('INPUT_OBJECT') -> "Input objects";
+location_desc('INPUT_FIELD_DEFINITION') -> "Input field definitions";
+location_desc('VARIABLE_DEFINITION') -> "Variable definitions".
 
-    #{
+render_directives() ->
+    %% TODO this might be slow
+    Objects = graphql_schema:all(),
+    Directives = [Id || #directive_type{id = Id} <- Objects],
+    Rendered0 = [render_directive(graphql_schema:get(Directive))
+                 || Directive <- Directives],
+    unwrap_list_render(Rendered0).
+
+render_directive(#directive_type{id = Name,
+                          description = Desc,
+                          locations = Locations,
+                          args = Args0}) ->
+    RenderedArgs0 = [render_input_value({ArgName, Arg}) || ArgName := Arg <- Args0],
+    RenderedArgs = unwrap_list_render(RenderedArgs0),
+    {ok, #{
        <<"name">> => Name,
-       <<"description">> => Desc,
-       <<"locations">> =>
-           [<<"FIELD">>, <<"FRAGMENT_SPREAD">>, <<"INLINE_FRAGMENT">>],
-       <<"args">> =>
-           [#{ <<"name">> => <<"if">>,
-               <<"description">> => <<"flag for the condition">>,
-               <<"type">> => Bool,
-               <<"defaultValue">> => false }]
-     }.
+       <<"description">> => render_optional(Desc),
+       <<"locations">> => [atom_to_binary(Loc) || Loc <- Locations],
+       <<"args">> => RenderedArgs
+     }}.
 
 %% Resolver for introspection
 execute(_Ctx, null, _, _) ->

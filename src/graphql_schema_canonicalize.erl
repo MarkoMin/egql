@@ -102,7 +102,6 @@ c_enum_val(K, #{ value := V, description := Desc } = Map) ->
     {V, #enum_value {
         val = Key,
         description = binarize(Desc),
-        deprecation = deprecation(Map),
         directives = directives(Map)}}.
 
 %% -- FIELDS ----------
@@ -123,7 +122,6 @@ c_field_val(M) ->
        ty = c_field_val_ty(M),
        resolve = c_field_val_resolve(M),
        args = c_field_val_args(M),
-       deprecation = deprecation(M),
        directives = directives(M),
        description = c_field_val_description(M)
     }.
@@ -207,10 +205,6 @@ enum_resolve(_) ->
 %% -- Directives
 directives(#{ directives := Ds }) -> Ds;
 directives(#{}) -> [].
-
-%% -- Deprecation
-deprecation(#{ deprecation := Reason }) -> binarize(Reason);
-deprecation(#{}) -> undefined.
 
 %% -- directive locations
 c_directive_locations(#{ locations := Ls }) ->
