@@ -22,6 +22,9 @@ Nothing here yet
 * `geas_rebar3` and `rebar3_hex` are now labeled as `project_plugins`, meaning they'll
   not be downloaded when using `egql` as a dependency.
 * Hex package name changed to `egql`, application name stays the same for easier migration.
+* Error reason in integer output when truncated float is not integer is changed from
+  `not_integer` to `float_truncate_not_integer` - now it's the same for both input and
+  output coercers.
 
 ### Added
 

@@ -1,10 +1,10 @@
 -module(graphql_app).
+
 -behaviour(application).
--include("graphql_schema.hrl").
 
 -export([start/2, stop/1]).
 
--spec start(normal | {takeover, node()} | {failover, node()}, term()) -> {ok, pid()} | {error, term()}.
+-spec start(application:start_type(), term()) -> supervisor:startlink_ret().
 start(_Type, _Args) ->
     graphql_sup:start_link().
 
