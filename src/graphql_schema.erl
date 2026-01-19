@@ -109,15 +109,13 @@ get(ID) ->
 %% or nothing at all.
 -spec validate_enum(binary(), binary()) -> ok | not_found | {other_enums, [#enum_type{}]}.
 validate_enum(EnumID, EnumValue) ->
-    try ets:lookup_element(?ENUMS, EnumValue, 2) of
+    case ets:lookup_element(?ENUMS, EnumValue, 2, undefined) of
         #{EnumID := _} -> ok;
+        undefined -> not_found;
         EnumIDsMap ->
             EnumIDs = maps:keys(EnumIDsMap),
             OtherEnums = [?MODULE:get(ID) || ID <- EnumIDs],
             {other_enums, OtherEnums}
-    catch
-        error:badarg ->
-            not_found
     end.
 
 %% Find the implementors of a given interface. If this proves to be
@@ -241,13 +239,7 @@ insert_enum(Tab, #enum_type { id = ID, values = VMap }) ->
     ok.
 
 append_enum_id(Tab, Key, ID) ->
-    CurrentIDs = try ets:lookup_element(?ENUMS, Key, 2) of
-        EnumIDsMap -> EnumIDsMap
-    catch
-        error:badarg ->
-            #{}
-    end,
+    CurrentIDs = ets:lookup_element(?ENUMS, Key, 2, #{}),
     NewIDs = CurrentIDs#{ID => undefined},
     ets:insert(Tab, {Key, NewIDs}),
     ok.
-

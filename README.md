@@ -1,6 +1,6 @@
 # A GraphQL Server library - in Erlang
 
-[![Erlang/OTP Versions](https://img.shields.io/badge/erlang%2Fotp-25+-blue)](https://www.erlang.org)
+[![Erlang/OTP Versions](https://img.shields.io/badge/erlang%2Fotp-26+-blue)](https://www.erlang.org)
 [![Build Status](https://github.com/MarkoMin/egql/actions/workflows/ci.yml/badge.svg)](https://github.com/dnsimple/erldns/actions/workflows/ci.yml)
 
 This is a fork of [graphql-erlang](https://github.com/jlouis/graphql-erlang).

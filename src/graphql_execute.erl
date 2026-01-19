@@ -11,7 +11,7 @@
 -export([x/1, x/2]).
 -export([builtin_input_coercer/1]).
 -type source() :: reference().
--type demonitor() :: {reference(), pid()} .
+-type demonitor() :: {reference(), pid()}.
 
 %% Execution context
 %%

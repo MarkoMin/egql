@@ -27,7 +27,7 @@ Nothing here yet
   output coercers.
 * `deprecated` field removed from `schema_field` and `enum_value` records - deprecation
   is handled as directive. This will also result in slightly smaller schemas.
-* `minimum_otp_vsn` set to `OTP 25.0` (because map comprehensions).
+* `minimum_otp_vsn` set to `OTP 26.0`.
 
 ### Added
 
