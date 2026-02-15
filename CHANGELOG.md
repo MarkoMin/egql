@@ -29,7 +29,7 @@ Nothing here yet
   is handled as directive. This will also result in slightly smaller schemas. This also
   means that schemas from `0.16.1` are not valid in `0.17.0`. If you're using live upgrades,
   reload the schema.
-* `minimum_otp_vsn` set to `OTP 26.0`.
+* `minimum_otp_vsn` set to `OTP 26.0` (usage of `ets:lookup_element/4`).
 * Boolean coercion error terms changed from `not_bool` and `not_coercible` to
   `not_bool_coercible`.
 * Binary input coercion error term changed from `not_coercible` to `not_binary_coercible`.
