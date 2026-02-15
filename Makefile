@@ -22,4 +22,7 @@ test-cover:
 update:
 	@$(REBAR) update
 
-.PHONY: compile clean dialyzer test update
+docs:
+	@$(REBAR) ex_doc
+
+.PHONY: compile clean dialyzer test update docs
