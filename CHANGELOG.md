@@ -26,8 +26,13 @@ Nothing here yet
   `not_integer` to `float_truncate_not_integer` - now it's the same for both input and
   output coercers.
 * `deprecated` field removed from `schema_field` and `enum_value` records - deprecation
-  is handled as directive. This will also result in slightly smaller schemas.
+  is handled as directive. This will also result in slightly smaller schemas. This also
+  means that schemas from `0.16.1` are not valid in `0.17.0`. If you're using live upgrades,
+  reload the schema.
 * `minimum_otp_vsn` set to `OTP 26.0`.
+* Boolean coercion error terms changed from `not_bool` and `not_coercible` to
+  `not_bool_coercible`.
+* Binary input coercion error term changed from `not_coercible` to `not_binary_coercible`.
 
 ### Added
 

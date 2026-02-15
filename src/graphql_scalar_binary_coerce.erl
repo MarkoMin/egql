@@ -30,7 +30,7 @@ output(_,X) when is_list(X) ->
     %% as iodata() and output it if it doesn't follow the above schema
     try iolist_to_binary(X) of
         Val -> {ok, Val}
-    catch _:_ -> {error, not_coercible}
+    catch _:_ -> {error, not_binary_coercible}
     end;
 output(_, A) when is_atom(A) ->
     %% Atoms can be output stringently
@@ -45,4 +45,4 @@ output(_, F) when is_float(F) ->
     %% Likewise floating point values, although a small loss of precision might occur here
     {ok, float_to_binary(F)};
 output(_, _) ->
-    {error, not_coercible}.
+    {error, not_binary_coercible}.
