@@ -4,16 +4,18 @@
 [![Build Status](https://github.com/MarkoMin/egql/actions/workflows/ci.yml/badge.svg)](https://github.com/dnsimple/erldns/actions/workflows/ci.yml)
 
 This is a hard fork of [graphql-erlang](https://github.com/jlouis/graphql-erlang).
+Original maintainers are unreachable and this `egql` aims to continue
+their valuable effort to support GraphQL server-side.
 
-Version `0.16.1` is where `egql` was created.
+First commit of `egql` is [#283ce713](https://github.com/MarkoMin/egql/commit/283ce713b9ab9636b0f4397ae2db15299926fdc1)
+and first version is `0.17.0`.
 
-Version `0.17.0` was first available version of `eqgl`.
-
-Rest of this file is from the original `README.md`:
+Rest of this file will stay the same, except parts like examples
+that need some refresh to be up to date.
 
 This project contains the necessary support code to implement GraphQL
 servers in Erlang. Its major use is on top of some other existing
-transport library, for instance the cowboy web server. When a request
+transport library, for instance the `cowboy` web server. When a request
 arrives, it can be processed by the GraphQL support library and a
 GraphQL answer can be given. In a way, this replaces all of your REST
 endpoints with a single endpoint: one for Graph Queries.
@@ -385,27 +387,88 @@ operation name in `OpName` and parameter variables for the given op in
 `Vars`. The variables `Req` and `State` are standard cowboy request
 and state tracking variables from `cowboy_rest`.
 
+Complete GraphQL handler for `cowboy` might look like this:
+
 ```erlang
-run(Doc, OpName, Vars, Req, State) ->
-  case graphql:parse(Doc) of
-    {ok, AST} ->
-      try
-          {ok, #{fun_env := FunEnv,
-                ast := AST2 }} = graphql:type_check(AST),
-          ok = graphql:validate(AST2),
-          Coerced = graphql:type_check_params(FunEnv, OpName, Vars),
-          Ctx = #{ params => Coerced, operation_name => OpName },
-          Response = graphql:execute(Ctx, AST2),
-          Req2 = cowboy_req:set_resp_body(encode_json(Response), Req),
-          {ok, Reply} = cowboy_req:reply(200, Req2),
-          {halt, Reply, State}
-      catch
-            throw:Err ->
-                err(400, Err, Req, State)
-      end;
-    {error, Error} ->
-        err(400, {parser_error, Error}, Req, State)
-  end.
+-module(my_gql_handler).
+
+-behaviour(cowboy_rest).
+
+-export([init/2,
+        allowed_methods/2,
+        content_types_provided/2,
+        content_types_accepted/2,
+        charsets_provided/2,
+        run/2]).
+
+init(Req, Opts) when is_map(Opts)->
+    {cowboy_rest, Req, Opts}.
+
+allowed_methods(Req, State) ->
+    {[<<"POST">>, <<"OPTIONS">>], Req, State}.
+
+content_types_provided(Req, State) ->
+    {[{{<<"application">>, <<"json">>, []}, json_request}], Req, State}.
+
+content_types_accepted(Req, State) ->
+    {[{{<<"application">>, <<"json">>, []}, json_request}], Req, State}.
+
+charsets_provided(Req, State) ->
+    {[<<"utf-8">>], Req, State}.
+
+run(Req0, State) ->
+    {ok, RawBody, Req1} = read_full_body(Req0, <<>>),
+    JSON = json:decode(RawBody),
+    maybe
+        {ok, Doc} ?= document(JSON),
+        {ok, OpName} ?= operation_name(JSON),
+        {ok, Vars} ?= variables(JSON),
+        {ok, AST} ?= graphql:parse(Doc),
+        run(Req0, State, AST, OpName, Vars)
+    else
+        {error, Reason} -> 
+            err(400, Reason, Req1, State)
+    end.
+
+run(Req0, State, AST0, OpName, Vars) ->
+    try
+        {ok, #{fun_env := FunEnv,
+               ast := AST}} = graphql:type_check(AST0),
+        ok = graphql:validate(AST),
+        Coerced = graphql:type_check_params(FunEnv, OpName, Vars),
+        Ctx = #{params => Coerced,
+                operation_name => OpName},
+        Response = graphql:execute(Ctx, AST),
+        Req1 = cowboy_req:set_resp_body(json:encode(Response), Req0),
+        Reply = cowboy_req:reply(200, Req1),
+        {stop, Reply, State}
+    catch
+        throw:Err ->
+            {error, Err}
+    end.
+
+read_full_body(Req0, Acc) ->
+    case cowboy_req:read_body(Req0) of
+        {ok, Body, Req} ->
+            {ok, <<Acc/binary, Body/binary>>, Req};
+        {more, BodyPart, Req} ->
+            read_full_body(Req, <<Acc/binary, BodyPart/binary>>)
+    end.
+
+err(Code, Msg0, Req0, State) ->
+    Msg = io_lib:format("~p", [Msg0]),
+    Req1 = cowboy_req:set_resp_body(Msg, Req0),
+    Reply = cowboy_req:reply(Code, Req1),
+    {stop, Reply, State}.
+
+document(#{<<"query">> := Q}) -> {ok, Q};
+document(_) -> {error, no_graphql_query_supplied}.
+
+variables(#{<<"variables">> := Vars}) when is_map(Vars) -> {ok, Vars};
+variables(_) -> {ok, #{}}.
+
+operation_name(#{<<"operationName">> := OpName}) -> {ok, OpName};
+operation_name(_) -> {ok, undefined}.
 ```
 
 ## Conventions

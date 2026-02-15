@@ -43,6 +43,8 @@ Nothing here yet
   added to test to ensure this)
 * Parser support for `VARIABLE_DEFINITION` directive location added in
   [GraphQL Oct2021](https://spec.graphql.org/October2021/#ExecutableDirectiveLocation)
+* `cowboy` example is updated for versions `2.x.x` and now contains the whole handler
+  module so it is plug-and-play.
 
 ### Fixed
 
