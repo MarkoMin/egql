@@ -62,6 +62,7 @@ Nothing here yet
   state that explicitly.
 * Removed `.travis.yml`, replaced by GitHub actions workflow.
 * `shell.nix` updated
+* Updated link to the GraphQL tutorial book
 
 ## [0.16.0] 2021-01-21 Hex.pm release
 

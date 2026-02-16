@@ -52,7 +52,7 @@ https://github.com/shopgun/graphql-erlang-tutorial
 Also, the tutorial has a book which describes how the tutorial example
 is implemented in detail:
 
-https://shopgun.github.io/graphql-erlang-tutorial/
+https://jlouis.github.io/graphql-erlang-tutorial/
 
 *NOTE:* Read the tutorial before reading on in this repository if you
 haven't already. This README gives a very quick overview, but the
