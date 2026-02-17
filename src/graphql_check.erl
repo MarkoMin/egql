@@ -50,6 +50,7 @@
 %%% @end
 -module(graphql_check).
 
+-include_lib("kernel/include/logger.hrl").
 -include_lib("graphql/include/graphql.hrl").
 -include("graphql_internal.hrl").
 -include("graphql_schema.hrl").
@@ -814,11 +815,10 @@ coerce_default_param(#ctx { path = Path } = Ctx, Default, Ty) ->
         Result -> Result
     catch
         Class:Err ->
-            error_logger:error_report(
-              [{path, graphql_err:path(lists:reverse(Path))},
-               {default_value, Default},
-               {type, graphql_err:format_ty(Ty)},
-               {default_coercer_error, Class, Err}]),
+            ?LOG_ERROR(#{path => graphql_err:path(lists:reverse(Path)),
+                         default_value => Default,
+                         type => graphql_err:format_ty(Ty),
+                         default_coercer_error => {Class, Err}}),
             err(Ctx, non_coercible_default)
     end.
 
@@ -840,7 +840,8 @@ resolve_input(Ctx, ID, Val, Mod) ->
             err(Ctx, {input_coercion, ID, Val, Reason})
     catch
         Cl:Err ->
-            err_report({input_coercer, ID, Val}, Cl, Err),
+            ?LOG_ERROR(#{coercer => {input_coercer, ID, Val},
+                         error=> {Cl, Err}}),
             err(Ctx, {input_coerce_abort, {Cl, Err}})
     end.
 
@@ -919,14 +920,6 @@ operation(FunEnv, undefined, Params) ->
     end;
 operation(FunEnv, OpName, _Params) ->
     maps:get(OpName, FunEnv, not_found).
-
-%% Tell the error logger that something is off
-err_report(Term, Cl, Err) ->
-  error_logger:error_report(
-    [
-     Term,
-     {error, Cl, Err}
-    ]).
 
 %% Add a path component to the context
 -spec add_path(ctx(), Component :: term()) -> ctx().

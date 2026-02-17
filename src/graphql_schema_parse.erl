@@ -1,5 +1,6 @@
 -module(graphql_schema_parse).
 
+-include_lib("kernel/include/logger.hrl").
 -include("graphql_internal.hrl").
 -include("graphql_schema.hrl").
 
@@ -154,10 +155,9 @@ schema_defn(_) -> false.
 
 report_other_entries([]) -> ok;
 report_other_entries(Es) ->
-    error_logger:error_msg("Loading graphql schema from file, "
-                           "but it contains non-schema entries: ~p~n",
-                           [Es]),
-    ok.
+    ?LOG_ERROR("Loading graphql schema from file, "
+                "but it contains non-schema entries: ~p~n",
+               [Es]).
 
 handle_mapping(Map) ->
     F = fun(_K, V) -> handle_map(V) end,

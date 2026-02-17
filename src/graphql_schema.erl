@@ -1,6 +1,7 @@
 -module(graphql_schema).
 -behaviour(gen_server).
 
+-include_lib("kernel/include/logger.hrl").
 -include_lib("stdlib/include/qlc.hrl").
 -include("graphql_schema.hrl").
 -include("graphql_internal.hrl").
@@ -59,10 +60,9 @@ insert(S, #{ canonicalize := true }) ->
                     {error, {already_exists, Identify(S)}}
             end
     catch
-        ?EXCEPTION(Class, Reason, Stacktrace) ->
-            error_logger:error_msg(
-              "Schema canonicalization error: ~p stacktrace: ~p~n",
-              [{Class,Reason}, ?GET_STACK(Stacktrace)]),
+        Class:Reason:St ->
+            ?LOG_ERROR("Schema canonicalization error: ~p stacktrace: ~p~n",
+                       [{Class,Reason}, St]),
             {error, {schema_canonicalize, {Class, Reason}}}
     end;
 insert(S, #{}) ->

@@ -33,6 +33,7 @@ Nothing here yet
 * Boolean coercion error terms changed from `not_bool` and `not_coercible` to
   `not_bool_coercible`.
 * Binary input coercion error term changed from `not_coercible` to `not_binary_coercible`.
+* Removed support for pre-OTP21 stacktraces
 
 ### Added
 
@@ -63,6 +64,7 @@ Nothing here yet
 * Removed `.travis.yml`, replaced by GitHub actions workflow.
 * `shell.nix` updated
 * Updated link to the GraphQL tutorial book
+* Deprecated logging API calls to `error_logger` replaced with `logger`
 
 ## [0.16.0] 2021-01-21 Hex.pm release
 

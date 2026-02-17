@@ -1,5 +1,6 @@
 -module(graphql_err).
 
+-include_lib("kernel/include/logger.hrl").
 -include_lib("graphql/include/graphql.hrl").
 -include("graphql_internal.hrl").
 -include("graphql_schema.hrl").
@@ -39,7 +40,7 @@ crash(_Ctx, Err) ->
     %%
     %% We recommend providing your own override of this function to include
     %% some unique request id for the request as well.
-    error_logger:error_report([{crash, Err}]),
+    ?LOG_ERROR(#{crash => Err}),
     #{ message => <<"GraphQL Internal Server Error">>,
        extensions => #{ code => internal_server_error } }.
 
@@ -80,11 +81,11 @@ protect(M, F, A) ->
     try apply(M, F, A) of
         Val -> Val
     catch
-        ?EXCEPTION(Cl, Err, Stacktrace) ->
-            error_logger:error_report([error_module_crash,
-                                      #{ class => Cl,
-                                         error => Err,
-                                         stack => ?GET_STACK(Stacktrace)}]),
+        Cl:Err:St ->
+            ?LOG_ERROR(#{error_module_crash =>
+                            #{ class => Cl,
+                               error => Err,
+                               stack => St}}),
             #{ message => <<"Error Module Crashed">> }
     end.
 
@@ -97,7 +98,7 @@ check_error_response(Path, #{ message := Message }) ->
     #{ path => Path,
        message => iolist_to_binary(Message) };
 check_error_response(Path, Otherwise) ->
-    error_logger:error_report([error_response_incorrect, Otherwise]),
+    ?LOG_ERROR(#{error_response_incorrect => Otherwise}),
     #{ path => Path,
        message => <<"Internal Error: Error Module supplied wrong error response">> }.
 

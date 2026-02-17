@@ -1,5 +1,6 @@
 -module(graphql_schema_validate).
 
+-include_lib("kernel/include/logger.hrl").
 -include("graphql_schema.hrl").
 -include("graphql.hrl").
 
@@ -53,10 +54,10 @@ x() ->
     catch
         throw:Error ->
             %% These errors are usually a bug in the programmers code,
-            %% hence they are written to the error_logger as well so
+            %% hence they are written to the logger as well so
             %% you get nice error messages for them apart from the
             %% Erlang term.
-            error_logger:error_msg(format_error(Error)),
+            ?LOG_ERROR(format_error(Error)),
             exit(Error)
     end.
 

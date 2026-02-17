@@ -1,5 +1,6 @@
 -module(graphql_execute).
 
+-include_lib("kernel/include/logger.hrl").
 -include_lib("graphql/include/graphql.hrl").
 -include("graphql_internal.hrl").
 -include("graphql_schema.hrl").
@@ -500,12 +501,8 @@ apply_chain(Val, [F|Fs]) ->
     end.
 
 report_wrong_return(Obj, Name, Fun, Val) ->
-    error_logger:error_msg(
-      "Resolver ~p.~p returned wrong value: ~p(..) -> ~p",
-      [Obj,
-       Name,
-       Fun,
-       Val]).
+    ?LOG_ERROR("Resolver ~p.~p returned wrong value: ~p(..) -> ~p",
+               [Obj, Name, Fun, Val]).
 
 format_directives([]) -> [];
 format_directives([#directive { id = N, args = Args }|Ds]) ->
@@ -548,10 +545,10 @@ resolve_field_value(#ectx { op_type = OpType,
                     {error, {wrong_resolver_return, {Obj, Name}}};
                 Res -> Res
             end;
-        ?EXCEPTION(Cl, Err, Stacktrace) ->
+        Cl:Err:St ->
             M = #{ type => graphql_schema:id(ObjectType),
                    field => Name,
-                   stack => ?GET_STACK(Stacktrace),
+                   stack => St,
                    class => Cl,
                    error => Err},
             {error, {resolver_crash, M}}
@@ -572,9 +569,8 @@ handle_resolver_result({defer, Token, DeferStateMap}) ->
 handle_resolver_result(_Unknown) -> wrong.
 
 complete_value(Ctx, Ty, Fields, {ok, Value}) when is_binary(Ty) ->
-    error_logger:warning_msg(
-      "Canary: Type lookup during value completion for: ~p~n",
-      [Ty]),
+    ?LOG_WARNING("Canary: Type lookup during value completion for: ~p~n",
+                 [Ty]),
     SchemaType = graphql_schema:get(Ty),
     complete_value(Ctx, SchemaType, Fields, {ok, Value});
 complete_value(#ectx{ defer_target = Upstream } = Ctx,
@@ -657,11 +653,10 @@ resolve_abstract_type(Resolver, Value) when is_function(Resolver, 1) ->
         {error, Reason} ->
             {error, {type_resolver_error, Reason}}
     catch
-       ?EXCEPTION(Cl, Err, Stacktrace) ->
-            error_logger:error_msg(
-              "Type resolver crashed: ~p stacktrace: ~p~n",
-              [{Cl,Err}, ?GET_STACK(Stacktrace)]),
-           {error, {resolve_type_crash, {Cl,Err}}}
+        Cl:Err:St ->
+            ?LOG_ERROR("Type resolver crashed: ~p stacktrace: ~p~n",
+                       [{Cl,Err}, St]),
+            {error, {resolve_type_crash, {Cl,Err}}}
     end.
 
 complete_value_scalar(Ctx, ID, RM, Value) ->
@@ -671,10 +666,9 @@ complete_value_scalar(Ctx, ID, RM, Value) ->
         {error, Reason} ->
             null(Ctx, {output_coerce, ID, Value, Reason})
     catch
-        ?EXCEPTION(Cl, Err, Stacktrace) ->
-            error_logger:error_msg(
-              "Output coercer crash during value completion: ~p, stacktrace: ~p~n",
-              [{Cl,Err,ID,Value}, ?GET_STACK(Stacktrace)]),
+        Cl:Err:St ->
+            ?LOG_ERROR("Output coercer crash during value completion: ~p, stacktrace: ~p~n",
+                       [{Cl,Err,ID,Value}, St]),
             null(Ctx, {output_coerce_abort, ID, Value, {Cl, Err}})
     end.
 
@@ -693,11 +687,10 @@ assert_list_completion_structure(Ty, Fields, Results) ->
         [{_, R}|_] = Errs ->
             Name = graphql_ast:typename(Ty),
             Field = graphql_ast:id(hd(Fields)),
-            error_logger:error_msg(
-              "Error in resolver function: (Object.Field) ~ts.~ts: "
-              "the result ~p doesn't follow the valid list form of "
-              "{ok, _} | {error, _} (~B errors in total)~n",
-              [Name, Field, R, length(Errs)]),
+            ?LOG_ERROR("Error in resolver function: (Object.Field) ~ts.~ts: "
+                        "the result ~p doesn't follow the valid list form of "
+                        "{ok, _} | {error, _} (~B errors in total)~n",
+                       [Name, Field, R, length(Errs)]),
             {error, list_resolution}
     end.
 
@@ -724,7 +717,7 @@ complete_value_list(#ectx{ defer_target = Upstream } = Ctx,
                                         (#{ error_term := Term } = E) ->
                                             E#{ error_term := {resolver_error, Term}};
                                         (Otherwise) ->
-                                            error_logger:error_report([{wrong, Otherwise}]),
+                                            ?LOG_ERROR(#{wrong=>Otherwise}),
                                             Otherwise
                                     end,
                                 { [{ok, V, lists:map(Wrapper, Errs)} | Rest],
@@ -1098,9 +1091,8 @@ defer_handle_work(#defer_state { work = WorkMap,
                     defer_loop(
                       State#defer_state { canceled = Cancelled -- [Target] });
                 false ->
-                    error_logger:info_msg(
-                      "Ignoring unknown uncancelled target ~p with return ~p",
-                      [Target, Input]),
+                    ?LOG_INFO("Ignoring unknown uncancelled target ~p with return ~p",
+                              [Target, Input]),
                     defer_loop(State)
             end;
         {Closure, WorkMap2} ->

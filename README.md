@@ -575,6 +575,8 @@ then implement two functions to handle the scalars:
 ```erlang
 -module(scalar_resource).
 
+-include_lib("kernel/include/logger.hrl").
+
 -export(
   [input/2,
     output/2]).
@@ -588,7 +590,7 @@ then implement two functions to handle the scalars:
 input(<<"Color">>, C) -> color:coerce(C);
 input(<<"DateTime">>, DT) -> datetime:coerce(DT);
 input(Ty, V) ->
-    error_logger:info_report({coercing_generic_scalar, Ty, V}),
+    ?LOG_INFO(#{coercing_generic_scalar => {Ty, V}}),
     {ok, V}.
 
 -spec output(Type, Value) -> {ok, Coerced} | {error, Reason}
@@ -600,7 +602,7 @@ input(Ty, V) ->
 output(<<"Color">>, C) -> color:as_binary(C);
 output(<<"DateTime">>, DT) -> datetime:as_binary(DT);
 output(Ty, V) ->
-    error_logger:info_report({output_generic_scalar, Ty, V}),
+    ?LOG_INFO(#{output_generic_scalar => {Ty, V}}),
     {ok, V}.
 ```
 

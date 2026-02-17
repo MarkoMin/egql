@@ -70,8 +70,8 @@ v(Q) ->
                ok = graphql:validate(AST),
                true
             catch
-                ?EXCEPTION(Class, Err, Stacktrace) ->
-                  ct:log("Error: ~p", [{Class, Err, ?GET_STACK(Stacktrace)}]),
+                Class:Err:St ->
+                  ct:log("Error: ~p", [{Class, Err, St}]),
                   false
             end;
         Err ->
