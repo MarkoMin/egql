@@ -1,7 +1,3 @@
-%% TODO use native records in OTP29+, provide `graphql_directive` module
-%% to handle directives, rename `schema` field to `type` because it's
-%% `directive_type()`.
-
 %% Type Definition Language
 -record(directive,
         { id :: graphql:name(),
