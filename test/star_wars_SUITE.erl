@@ -6,7 +6,7 @@
          init_per_testcase/2, end_per_testcase/2]).
 
 -export([hero/1, friends/1, query_id_params/1, query_aliases/1,
-         fragments/1, typename/1]).
+         field_aliases/1, fragments/1, typename/1]).
 
 -export([complex/1, non_existent_field/1, fields_on_objects/1,
          no_fields_on_interfaces/1, no_fields_on_scalars/1,
@@ -45,6 +45,7 @@ groups() ->
               friends,
               query_id_params,
               query_aliases,
+              field_aliases,
               fragments,
               typename
              ]},
@@ -195,6 +196,24 @@ query_aliases(Config) ->
     #{ data := #{
           <<"luke">> := #{ <<"name">> := <<"Luke Skywalker">> },
           <<"leia">> := #{ <<"name">> := <<"Leia Organa">> } } } = th:x(Config, Q2),
+    ok.
+
+field_aliases(Config) ->
+    %% https://spec.graphql.org/July2015/#sec-Field-Alias
+    Q1 =
+      "query FetchLukeAliased {"
+      "     human(id: \"1000\") {"
+      "          name"
+      "          name1: name"
+      "          name2: name"
+      "     }"
+      "}",
+    Name = <<"Luke Skywalker">>,
+    #{ data :=
+        #{ <<"human">> :=
+            #{ <<"name">> := Name,
+               <<"name1">> := Name,
+               <<"name2">> := Name} } } = th:x(Config, Q1),
     ok.
 
 fragments(Config) ->
