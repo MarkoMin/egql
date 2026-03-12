@@ -160,7 +160,7 @@ execute(AST) ->
     Ctx = #{ params => #{}, default_timeout => ?DEFAULT_TIMEOUT },
     execute(Ctx, AST).
 
--spec execute(context(), document()) -> #{ atom() => json() }.
+-spec execute(resolver_context(), document()) -> #{ atom() => json() }.
 execute(#{default_timeout := _DT } = Ctx, AST) ->
     graphql_execute:x(Ctx, AST);
 execute(Ctx, AST) ->

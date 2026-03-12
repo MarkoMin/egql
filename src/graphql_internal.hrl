@@ -72,7 +72,6 @@
           schema = undefined :: 'undefined' | any()
         }).
 -type op() :: #op{}.
--type context() :: #{ atom() => any() }.
 
 %%% --- Parsed Schemas
 %% Parsed schemas all starts with a p_ suffix

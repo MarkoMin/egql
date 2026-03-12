@@ -10,7 +10,11 @@
       | {list, schema_base_type()}
       | schema_base_type().
 
+-type resolver_context() :: #{ atom() => any() }.
+
 -type resolver_args() :: #{ binary() => term() }.
+
+-type resolver() :: fun ((resolver_context(), term(), binary(), resolver_args()) -> term()).
 
 -type directive_location() :: 'QUERY' | 'MUTATION' | 'SUBSCRIPTION' | 'FIELD'
         | 'FRAGMENT_DEFINITION' | 'FRAGMENT_SPREAD' | 'INLINE_FRAGMENT' | 'SCHEMA'
@@ -24,8 +28,6 @@
     'FIELD_DEFINITION', 'ARGUMENT_DEFINITION', 'INTERFACE', 'UNION',
     'ENUM', 'ENUM_VALUE', 'INPUT_OBJECT', 'INPUT_FIELD_DEFINITION',
     'VARIABLE_DEFINITION']).
-
--type resolver() :: fun ((ctx, term(), binary(), resolver_args()) -> term()).
 
 -record(directive_type,
         { id :: binary(),

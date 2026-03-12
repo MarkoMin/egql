@@ -65,6 +65,8 @@ Nothing here yet
 * `shell.nix` updated
 * Updated link to the GraphQL tutorial book
 * Deprecated logging API calls to `error_logger` replaced with `logger`
+* Type `context/0` from `graphql_internal.hrl` migrated to `graphql_schema.hrl`, renamed
+  to `resolver_context/0` and used correctly in type `resolver/0`
 
 ## [0.16.0] 2021-01-21 Hex.pm release
 
