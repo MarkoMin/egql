@@ -44,12 +44,12 @@ MultiStringValue    = """{MultiCharacter}*"""
 Rules.
 
 {Ignored}	   : skip_token.
-{Punctuator}	   : {token, {list_to_atom(TokenChars), TokenLine}}.
-{IntValue}	   : {token, {int, TokenLine, list_to_integer(TokenChars)}}.
-{FloatValue}	   : {token, {float, TokenLine, list_to_float(TokenChars)}}.
-{StringValue}	   : {token, {bstring, TokenLine, iolist_to_binary(unquote(TokenChars))}}.
-{MultiStringValue} : {token, {bstring, TokenLine, iolist_to_binary(unquote(TokenChars))}}.
-{Name}	           : {token, identifier(TokenChars, TokenLine)}.
+{Punctuator}	   : {token, {list_to_atom(TokenChars), TokenLoc}}.
+{IntValue}	   : {token, {int, TokenLoc, list_to_integer(TokenChars)}}.
+{FloatValue}	   : {token, {float, TokenLoc, list_to_float(TokenChars)}}.
+{StringValue}	   : {token, {bstring, TokenLoc, iolist_to_binary(unquote(TokenChars))}}.
+{MultiStringValue} : {token, {bstring, TokenLoc, iolist_to_binary(unquote(TokenChars))}}.
+{Name}	           : {token, identifier(TokenChars, TokenLoc)}.
 
 Erlang code.
 
@@ -57,26 +57,26 @@ Erlang code.
 %% will never call.
 -dialyzer({nowarn_function, yyrev/2}).
 
-identifier("true", TokenLine) -> {bool, TokenLine, true};
-identifier("false", TokenLine) -> {bool, TokenLine, false};
-identifier("query", TokenLine) -> {query, TokenLine};
-identifier("mutation", TokenLine) -> {mutation, TokenLine};
-identifier("subscription", TokenLine) -> {subscription, TokenLine};
-identifier("fragment", TokenLine) -> {fragment, TokenLine};
-identifier("on", TokenLine) -> {on, TokenLine};
-identifier("null", TokenLine) -> {null, TokenLine};
-identifier("scalar", TokenLine) -> {scalar, TokenLine};
-identifier("enum", TokenLine) -> {enum, TokenLine};
-identifier("type", TokenLine) -> {type, TokenLine};
-identifier("input", TokenLine) -> {input, TokenLine};
-identifier("implements", TokenLine) -> {implements, TokenLine};
-identifier("interface", TokenLine) -> {interface, TokenLine};
-identifier("union", TokenLine) -> {union, TokenLine};
-identifier("extend", TokenLine) -> {extend, TokenLine};
-identifier("schema", TokenLine) -> {schema, TokenLine};
-identifier("directive", TokenLine) -> {directive, TokenLine};
+identifier("true", TokenLoc) -> {bool, TokenLoc, true};
+identifier("false", TokenLoc) -> {bool, TokenLoc, false};
+identifier("query", TokenLoc) -> {query, TokenLoc};
+identifier("mutation", TokenLoc) -> {mutation, TokenLoc};
+identifier("subscription", TokenLoc) -> {subscription, TokenLoc};
+identifier("fragment", TokenLoc) -> {fragment, TokenLoc};
+identifier("on", TokenLoc) -> {on, TokenLoc};
+identifier("null", TokenLoc) -> {null, TokenLoc};
+identifier("scalar", TokenLoc) -> {scalar, TokenLoc};
+identifier("enum", TokenLoc) -> {enum, TokenLoc};
+identifier("type", TokenLoc) -> {type, TokenLoc};
+identifier("input", TokenLoc) -> {input, TokenLoc};
+identifier("implements", TokenLoc) -> {implements, TokenLoc};
+identifier("interface", TokenLoc) -> {interface, TokenLoc};
+identifier("union", TokenLoc) -> {union, TokenLoc};
+identifier("extend", TokenLoc) -> {extend, TokenLoc};
+identifier("schema", TokenLoc) -> {schema, TokenLoc};
+identifier("directive", TokenLoc) -> {directive, TokenLoc};
 
-identifier(ID, TokenLine) -> {name, TokenLine, iolist_to_binary(ID)}.
+identifier(ID, TokenLoc) -> {name, TokenLoc, iolist_to_binary(ID)}.
 
 unquote(Str) ->
     string:strip(Str, both, $").

@@ -48,6 +48,9 @@ Nothing here yet
   module so it is plug-and-play.
 * `ex_doc` integrated as a project plugin, will be used to generate Hex package
   documentation
+* `graphql_scanner` not returns better error location (`{Line, Column}` instead of `Line`)
+  (Tab is counted as 2 spaces - most GraphQL linters use that although tab usage is
+  discouraged anyways).
 
 ### Fixed
 
